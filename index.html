@@ -268,45 +268,46 @@ footer{padding:1.8rem 2.5rem;border-top:1px solid var(--border);display:flex;jus
 #originals,#recreates{padding:3rem 2.5rem;border-top:1px solid var(--border);}
 .music-section-desc{font-size:.73rem;color:var(--muted);margin-top:.4rem;margin-bottom:2rem;line-height:1.7;max-width:600px;}
 .music-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:1px;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
-.music-card{background:var(--s1);padding:1.4rem;display:flex;flex-direction:column;gap:.9rem;position:relative;overflow:hidden;transition:background .2s;}
+.music-card{background:var(--s1);display:flex;flex-direction:column;position:relative;overflow:hidden;transition:background .2s;}
 .music-card:hover{background:var(--s2);}
 .music-card.mc-playing{background:var(--s2);}
-.music-card.mc-playing::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:var(--accent);}
-.mc-top{display:flex;justify-content:space-between;align-items:flex-start;}
-.mc-emoji{width:44px;height:44px;border-radius:6px;background:var(--s3);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:1.3rem;flex-shrink:0;}
-.mc-emoji.playing-anim{animation:mc-spin 3s linear infinite;}
-@keyframes mc-spin{to{transform:rotate(360deg);}}
-.mc-badge{font-size:.56rem;letter-spacing:.1em;text-transform:uppercase;padding:2px 7px;border-radius:2px;border:1px solid var(--border2);color:var(--muted);}
-.mc-badge.original{border-color:rgba(0,230,118,.3);color:rgba(0,230,118,.8);}
-.mc-badge.recreate{border-color:rgba(100,160,255,.3);color:rgba(130,185,255,.8);}
-.mc-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1.05rem;letter-spacing:-.02em;line-height:1.2;transition:color .2s;}
+.music-card.mc-playing::before{content:'';position:absolute;left:0;top:0;width:3px;height:100%;background:var(--accent);z-index:2;}
+/* cover art */
+.mc-cover{width:100%;aspect-ratio:1;background:var(--s3);position:relative;overflow:hidden;flex-shrink:0;}
+.mc-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s ease;}
+.music-card:hover .mc-cover img{transform:scale(1.04);}
+.mc-cover-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--s3);}
+.mc-cover-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.7) 0%,transparent 50%);opacity:0;transition:opacity .3s;}
+.music-card:hover .mc-cover-overlay{opacity:1;}
+.mc-cover-play{position:absolute;bottom:.8rem;right:.8rem;width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(6px);transition:all .25s;border:none;cursor:pointer;}
+.mc-cover-play svg{width:12px;fill:#fff;margin-left:2px;}
+.music-card:hover .mc-cover-play{opacity:1;transform:translateY(0);}
+.mc-cover-badge{position:absolute;top:.7rem;left:.7rem;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:2px;backdrop-filter:blur(8px);}
+.mc-cover-badge.original{background:rgba(0,230,118,.2);border:1px solid rgba(0,230,118,.4);color:rgba(0,230,118,.95);}
+.mc-cover-badge.recreate{background:rgba(100,160,255,.2);border:1px solid rgba(100,160,255,.4);color:rgba(130,185,255,.95);}
+/* body */
+.mc-body{padding:1.1rem;display:flex;flex-direction:column;gap:.7rem;flex:1;}
+.mc-title{font-family:'Syne',sans-serif;font-weight:800;font-size:1rem;letter-spacing:-.02em;line-height:1.2;transition:color .2s;}
 .music-card:hover .mc-title,.music-card.mc-playing .mc-title{color:var(--accent);}
-.mc-artist{font-size:.68rem;color:var(--muted);letter-spacing:.04em;}
+.mc-artist{font-size:.66rem;color:var(--muted);letter-spacing:.04em;}
 .mc-artist strong{color:var(--text);}
-.mc-desc{font-size:.68rem;color:var(--muted);line-height:1.7;letter-spacing:.02em;}
-/* recreate original ref */
-.mc-ref{display:flex;align-items:center;gap:.5rem;font-size:.62rem;color:var(--muted);padding:.5rem .7rem;background:var(--s3);border-radius:3px;border-left:2px solid var(--border2);}
+.mc-desc{font-size:.66rem;color:var(--muted);line-height:1.7;letter-spacing:.02em;}
+.mc-ref{display:flex;align-items:center;gap:.5rem;font-size:.62rem;color:var(--muted);padding:.45rem .65rem;background:var(--s3);border-radius:3px;border-left:2px solid var(--border2);}
 .mc-ref .mc-ref-label{color:var(--muted2);letter-spacing:.06em;font-size:.55rem;text-transform:uppercase;white-space:nowrap;}
-/* waveform */
-.mc-wave{height:24px;display:flex;align-items:center;gap:2px;}
-.mc-bar{flex:1;border-radius:1px;background:var(--border);position:relative;overflow:hidden;}
-.mc-bar-fill{position:absolute;left:0;bottom:0;width:100%;background:var(--accent);opacity:0;transition:opacity .3s;}
-.music-card.mc-playing .mc-bar{background:rgba(255,34,0,.1);}
-.music-card.mc-playing .mc-bar-fill{opacity:.6;animation:mcwv var(--d,.4s) ease-in-out infinite alternate;}
-@keyframes mcwv{from{height:var(--lo,15%)}to{height:var(--hi,90%)}}
-.mc-progress{height:2px;background:var(--border);border-radius:1px;display:none;}
+/* progress */
+.mc-progress{height:2px;background:var(--border);border-radius:1px;display:none;margin:0 1.1rem;}
 .music-card.mc-playing .mc-progress{display:block;}
 .mc-progress-fill{height:100%;background:var(--accent);width:0%;transition:width .4s linear;border-radius:1px;}
-/* bottom row */
-.mc-bottom{display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;}
+/* bottom */
+.mc-bottom{padding:.8rem 1.1rem;display:flex;justify-content:space-between;align-items:center;gap:.5rem;flex-wrap:wrap;border-top:1px solid var(--border);}
 .mc-tags{display:flex;gap:.3rem;flex-wrap:wrap;}
 .mc-tag{font-size:.54rem;letter-spacing:.06em;color:var(--muted);padding:2px 6px;background:var(--s3);border-radius:2px;}
 .mc-actions{display:flex;gap:.5rem;align-items:center;flex-shrink:0;}
-.mc-play-btn{width:34px;height:34px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;}
-.mc-play-btn svg{width:10px;fill:var(--muted);transition:fill .2s;}
-.mc-play-btn:hover,.music-card.mc-playing .mc-play-btn{background:var(--accent);border-color:var(--accent);}
-.mc-play-btn:hover svg,.music-card.mc-playing .mc-play-btn svg{fill:#fff;}
-.mc-ext-btn{height:34px;padding:0 .75rem;border:1px solid var(--border2);border-radius:3px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);transition:all .2s;display:flex;align-items:center;gap:.3rem;white-space:nowrap;}
+.mc-do-play{width:32px;height:32px;border:1px solid var(--border2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .2s;background:none;cursor:pointer;}
+.mc-do-play svg{width:10px;fill:var(--muted);transition:fill .2s;margin-left:1px;}
+.mc-do-play:hover,.music-card.mc-playing .mc-do-play{background:var(--accent);border-color:var(--accent);}
+.mc-do-play:hover svg,.music-card.mc-playing .mc-do-play svg{fill:#fff;}
+.mc-ext-btn{height:32px;padding:0 .75rem;border:1px solid var(--border2);border-radius:3px;font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);transition:all .2s;display:inline-flex;align-items:center;gap:.3rem;white-space:nowrap;text-decoration:none;}
 .mc-ext-btn:hover{border-color:var(--accent);color:var(--accent);}
 /* embed modal */
 .embed-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1050;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s;}
@@ -320,6 +321,17 @@ footer{padding:1.8rem 2.5rem;border-top:1px solid var(--border);display:flex;jus
 .embed-container iframe{width:100%;height:100%;border:none;display:block;}
 .embed-audio-wrap{padding:1.5rem;display:flex;flex-direction:column;gap:.75rem;align-items:center;}
 .embed-audio-wrap audio{width:100%;outline:none;}
+/* fetch bar in CP */
+.fetch-bar{display:flex;gap:.5rem;align-items:center;}
+.fetch-bar .cp-input{flex:1;}
+.fetch-btn{padding:.55rem .85rem;background:var(--accent);color:#fff;border:none;border-radius:3px;font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;transition:background .2s;flex-shrink:0;}
+.fetch-btn:hover{background:#ff4422;}
+.fetch-btn:disabled{background:var(--muted2);cursor:not-allowed;}
+.fetch-preview{display:flex;align-items:center;gap:.75rem;padding:.65rem .8rem;background:var(--s3);border-radius:4px;border:1px solid var(--border2);}
+.fetch-preview img{width:40px;height:40px;border-radius:3px;object-fit:cover;flex-shrink:0;}
+.fetch-preview .fp-info{font-size:.68rem;line-height:1.5;}
+.fetch-preview .fp-title{color:var(--text);font-family:'Syne',sans-serif;font-weight:700;}
+.fetch-preview .fp-artist{color:var(--muted);}
 /* empty state */
 .music-empty{padding:3rem;text-align:center;color:var(--muted);font-size:.72rem;letter-spacing:.06em;border:1px dashed var(--border2);border-radius:6px;}
 
@@ -809,67 +821,80 @@ function renderMusic(type){
   if(descEl) descEl.textContent = isOrig ? D.origDesc : D.recDesc;
 
   if(!items.length){
-    gridEl.innerHTML = `<div class="music-empty">No ${isOrig?'originals':'recreates'} added yet.</div>`;
+    gridEl.innerHTML = `<div class="music-empty">No ${isOrig?'original beats':'recreates'} added yet.</div>`;
     return;
   }
 
   gridEl.innerHTML = items.map((t,i)=>{
-    const bars = Array.from({length:16},()=>{
-      const lo=Math.floor(Math.random()*12+12),hi=Math.floor(Math.random()*55+28);
-      const d=(Math.random()*.35+.22).toFixed(2),dl=(Math.random()*.3).toFixed(2);
-      return `<div class="mc-bar" style="height:${lo+Math.random()*12}px"><div class="mc-bar-fill" style="--lo:${lo}%;--hi:${hi}%;--d:${d}s;animation-delay:${dl}s"></div></div>`;
-    }).join('');
+    const url = (t.audioUrl||'').trim();
+    const hasUrl = !!url;
+    const isYT = hasUrl && url.includes('youtu');
+    const isSC = hasUrl && url.includes('soundcloud');
+    const isDirectAudio = hasUrl && !isYT && !isSC;
+    const cover = t.coverUrl||'';
     const tags = (t.tags||[]).map(x=>`<span class="mc-tag">${escHtml(x)}</span>`).join('');
-    const hasAudio = !!t.audioUrl;
-    const isYT = hasAudio && (t.audioUrl.includes('youtu')||t.audioUrl.includes('youtube'));
-    const isSC = hasAudio && t.audioUrl.includes('soundcloud');
-    const isDirectAudio = hasAudio && !isYT && !isSC;
     const refRow = !isOrig && t.origArtist ? `
       <div class="mc-ref">
-        <span class="mc-ref-label">Original</span>
+        <span class="mc-ref-label">Ref</span>
         <span style="color:var(--text)">${escHtml(t.origSong||'')} — ${escHtml(t.origArtist)}</span>
       </div>` : '';
+
+    let actionBtn = '';
+    if(isDirectAudio){
+      actionBtn = `<button class="mc-do-play" data-id="${t.id}" data-type="${type}" title="Play">
+        <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
+      </button>`;
+    } else if(isYT){
+      actionBtn = `<a class="mc-ext-btn" href="${escAttr(url)}" target="_blank" rel="noopener">▶ YouTube</a>`;
+    } else if(isSC){
+      actionBtn = `<a class="mc-ext-btn" href="${escAttr(url)}" target="_blank" rel="noopener">☁ SoundCloud</a>`;
+    }
+
+    // Cover play button (only for external links)
+    const coverPlayBtn = (isYT||isSC) ? `
+      <a class="mc-cover-play" href="${escAttr(url)}" target="_blank" rel="noopener" title="Open">
+        <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
+      </a>` : isDirectAudio ? `
+      <button class="mc-cover-play mc-do-play" data-id="${t.id}" data-type="${type}" title="Play">
+        <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
+      </button>` : '';
+
     return `
-    <div class="music-card reveal" data-mid="${t.id}" data-mtype="${type}" style="transition-delay:${i*.04}s">
-      <div class="mc-top">
-        <div class="mc-emoji" id="emoji-${t.id}">${escHtml(t.emoji||'🎵')}</div>
-        <span class="mc-badge ${isOrig?'original':'recreate'}">${isOrig?'Original':'Recreate'}</span>
+    <div class="music-card reveal" data-mid="${t.id}" data-mtype="${type}" style="transition-delay:${i*.05}s">
+      <div class="mc-cover">
+        ${cover ? `<img src="${escAttr(cover)}" alt="${escAttr(t.title)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="mc-cover-placeholder" style="display:none">${escHtml(t.emoji||'🎵')}</div>` :
+        `<div class="mc-cover-placeholder">${escHtml(t.emoji||'🎵')}</div>`}
+        <div class="mc-cover-overlay"></div>
+        <span class="mc-cover-badge ${isOrig?'original':'recreate'}">${isOrig?'Original':'Recreate'}</span>
+        ${coverPlayBtn}
       </div>
-      <div>
-        <div class="mc-title">${escHtml(t.title)}</div>
-        <div class="mc-artist"><strong>${escHtml(t.artist||'')}</strong>${t.feat?' ft. '+escHtml(t.feat):''}</div>
+      ${isDirectAudio?`<div class="mc-progress"><div class="mc-progress-fill" id="mcp-${t.id}"></div></div>`:''}
+      <div class="mc-body">
+        <div>
+          <div class="mc-title">${escHtml(t.title)}</div>
+          <div class="mc-artist"><strong>${escHtml(t.artist||'')}</strong>${t.feat?' ft. '+escHtml(t.feat):''}</div>
+        </div>
+        ${refRow}
+        ${t.desc?`<div class="mc-desc">${escHtml(t.desc)}</div>`:''}
       </div>
-      ${refRow}
-      ${t.desc?`<div class="mc-desc">${escHtml(t.desc)}</div>`:''}
-      ${hasAudio?`<div class="mc-wave">${bars}</div>`:''}
-      ${hasAudio?`<div class="mc-progress"><div class="mc-progress-fill" id="mcp-${t.id}"></div></div>`:''}
       <div class="mc-bottom">
         <div class="mc-tags">${tags}</div>
-        <div class="mc-actions">
-          ${isDirectAudio?`<button class="mc-play-btn" data-mid="${t.id}" data-mtype="${type}" title="Play">
-            <svg viewBox="0 0 10 12" fill="var(--muted)"><path d="M0 0L10 6 0 12z"/></svg>
-          </button>`:''}
-          ${(isYT||isSC)?`<button class="mc-ext-btn open-embed" data-url="${escAttr(t.audioUrl)}" data-title="${escAttr(t.title)}">
-            ${isYT?'▶ YouTube':'☁ SoundCloud'}
-          </button>`:''}
-        </div>
+        <div class="mc-actions">${actionBtn}</div>
       </div>
     </div>`;
   }).join('');
 
-  // play buttons
-  gridEl.querySelectorAll('.mc-play-btn').forEach(btn=>{
+  // direct audio play buttons
+  gridEl.querySelectorAll('.mc-do-play').forEach(btn=>{
     btn.addEventListener('click',e=>{
-      e.stopPropagation();
-      const id=parseInt(btn.dataset.mid), mtype=btn.dataset.mtype;
-      const track = mtype==='originals'?(D.originals||[]).find(x=>x.id===id):(D.recreates||[]).find(x=>x.id===id);
+      e.preventDefault(); e.stopPropagation();
+      const id=parseInt(btn.dataset.id), mtype=btn.dataset.type;
+      const track=(mtype==='originals'?D.originals:D.recreates).find(x=>x.id===id);
       if(track) toggleMusicPlay(track, mtype);
     });
   });
-  // embed buttons
-  gridEl.querySelectorAll('.open-embed').forEach(btn=>{
-    btn.addEventListener('click',e=>{ e.stopPropagation(); openEmbed(btn.dataset.url, btn.dataset.title); });
-  });
+
   observer.disconnect();
   document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
   updateMusicCardUI();
@@ -1116,6 +1141,26 @@ document.getElementById('addLinkBtn').addEventListener('click',()=>{
 });
 
 /* Music (Originals + Recreates) in CP */
+async function fetchMeta(url){
+  url = url.trim();
+  if(!url) return null;
+  try{
+    if(url.includes('youtu')){
+      const r = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+      if(!r.ok) return null;
+      const d = await r.json();
+      return {title: d.title||'', artist: d.author_name||'', cover: d.thumbnail_url||''};
+    }
+    if(url.includes('soundcloud')){
+      const r = await fetch(`https://soundcloud.com/oembed?url=${encodeURIComponent(url)}&format=json`);
+      if(!r.ok) return null;
+      const d = await r.json();
+      return {title: d.title||'', artist: d.author_name||'', cover: d.thumbnail_url||''};
+    }
+  }catch(e){}
+  return null;
+}
+
 function renderCPMusic(type){
   const isOrig = type==='originals';
   const items  = isOrig ? (D.originals||[]) : (D.recreates||[]);
@@ -1127,9 +1172,12 @@ function renderCPMusic(type){
     row.className='cp-beat-row';
     row.innerHTML=`
       <div class="cp-beat-row-header">
-        <div>
-          <div class="cp-beat-row-title">${escHtml(t.title)}</div>
-          <div class="cp-beat-row-meta">${t.artist||''}${!isOrig&&t.origArtist?' · ref: '+t.origArtist:''}</div>
+        <div style="display:flex;align-items:center;gap:.6rem;">
+          ${t.coverUrl?`<img src="${escAttr(t.coverUrl)}" style="width:32px;height:32px;border-radius:3px;object-fit:cover;flex-shrink:0;">`:`<span style="font-size:1.2rem">${t.emoji||'🎵'}</span>`}
+          <div>
+            <div class="cp-beat-row-title">${escHtml(t.title)}</div>
+            <div class="cp-beat-row-meta">${escHtml(t.artist||'')}${!isOrig&&t.origArtist?' · ref: '+t.origArtist:''}</div>
+          </div>
         </div>
         <div class="cp-beat-row-actions">
           <button class="cp-icon-btn toggle-me" title="Edit">✎</button>
@@ -1137,10 +1185,26 @@ function renderCPMusic(type){
         </div>
       </div>
       <div class="cp-beat-edit-body">
-        <div class="cp-field"><label class="cp-label">Title</label>
-          <input class="cp-input me-title" value="${escAttr(t.title)}"></div>
+        <!-- AUTO FETCH -->
+        <div class="cp-field">
+          <label class="cp-label">🔗 Paste SoundCloud / YouTube URL to auto-fill</label>
+          <div class="fetch-bar">
+            <input class="cp-input me-audio" value="${escAttr(t.audioUrl||'')}" placeholder="https://soundcloud.com/... or youtube.com/...">
+            <button class="fetch-btn" type="button">Fetch ↓</button>
+          </div>
+          <div class="fetch-preview" style="display:none"></div>
+          <span style="font-size:.55rem;color:var(--muted);margin-top:3px;display:block;line-height:1.6">
+            SoundCloud / YouTube → opens in new tab (browser blocks embedded playback).<br>
+            Direct .mp3 link → plays inside the site.
+          </span>
+        </div>
+        <!-- PREVIEW -->
+        <div class="cp-field">
+          <label class="cp-label">Title</label>
+          <input class="cp-input me-title" value="${escAttr(t.title)}">
+        </div>
         <div class="cp-row">
-          <div class="cp-field"><label class="cp-label">Artist / Your name</label>
+          <div class="cp-field"><label class="cp-label">Artist</label>
             <input class="cp-input me-artist" value="${escAttr(t.artist||'')}"></div>
           <div class="cp-field"><label class="cp-label">Feature (optional)</label>
             <input class="cp-input me-feat" value="${escAttr(t.feat||'')}"></div>
@@ -1155,17 +1219,19 @@ function renderCPMusic(type){
         <div class="cp-field"><label class="cp-label">Description</label>
           <textarea class="cp-textarea me-desc" style="min-height:55px">${escHtml(t.desc||'')}</textarea></div>
         <div class="cp-field">
-          <label class="cp-label">Audio URL</label>
-          <input class="cp-input me-audio" value="${escAttr(t.audioUrl||'')}" placeholder="https://... (.mp3) or YouTube/SoundCloud URL">
-          <span style="font-size:.56rem;color:var(--muted);margin-top:3px;display:block">Direct .mp3 → plays inline. YouTube/SoundCloud → opens embed.</span>
+          <label class="cp-label">Cover Image URL (auto-filled or paste custom)</label>
+          <div style="display:flex;gap:.5rem;align-items:center;">
+            <input class="cp-input me-cover" value="${escAttr(t.coverUrl||'')}" placeholder="https://... image URL" style="flex:1">
+            ${t.coverUrl?`<img src="${escAttr(t.coverUrl)}" style="width:38px;height:38px;border-radius:3px;object-fit:cover;flex-shrink:0;" class="cover-thumb">`:'<span class="cover-thumb"></span>'}
+          </div>
         </div>
         <div class="cp-row">
-          <div class="cp-field"><label class="cp-label">Emoji</label>
+          <div class="cp-field"><label class="cp-label">Emoji (fallback)</label>
             <input class="cp-input me-emoji" value="${escAttr(t.emoji||'🎵')}"></div>
           <div class="cp-field"><label class="cp-label">Tags (comma separated)</label>
             <input class="cp-input me-tags" value="${escAttr((t.tags||[]).join(', '))}"></div>
         </div>
-        <button class="cp-btn primary save-me-btn" style="margin-top:.25rem">Save</button>
+        <button class="cp-btn primary save-me-btn" style="margin-top:.25rem">Save Track</button>
       </div>`;
 
     const hdr=row.querySelector('.cp-beat-row-header');
@@ -1179,6 +1245,42 @@ function renderCPMusic(type){
         renderCPMusic(type);
       }
     });
+
+    // FETCH button
+    const fetchBtn = row.querySelector('.fetch-btn');
+    const audioInput = row.querySelector('.me-audio');
+    const preview = row.querySelector('.fetch-preview');
+    fetchBtn.addEventListener('click', async()=>{
+      const url = audioInput.value.trim();
+      if(!url){ showToast('Paste a URL first'); return; }
+      fetchBtn.textContent='…'; fetchBtn.disabled=true;
+      const meta = await fetchMeta(url);
+      fetchBtn.textContent='Fetch ↓'; fetchBtn.disabled=false;
+      if(!meta){ showToast('Could not fetch metadata — fill in manually'); return; }
+      // fill fields
+      row.querySelector('.me-title').value  = meta.title  || row.querySelector('.me-title').value;
+      row.querySelector('.me-artist').value = meta.artist || row.querySelector('.me-artist').value;
+      row.querySelector('.me-cover').value  = meta.cover  || '';
+      // show preview
+      if(meta.cover){
+        const thumb = row.querySelector('.cover-thumb');
+        if(thumb.tagName==='IMG') thumb.src=meta.cover;
+        else { const img=document.createElement('img'); img.src=meta.cover; img.style.cssText='width:38px;height:38px;border-radius:3px;object-fit:cover;flex-shrink:0;'; thumb.replaceWith(img); }
+      }
+      preview.style.display='flex';
+      preview.innerHTML=`${meta.cover?`<img src="${escAttr(meta.cover)}" alt="">`:''}
+        <div class="fp-info"><div class="fp-title">${escHtml(meta.title)}</div><div class="fp-artist">${escHtml(meta.artist)}</div></div>`;
+      showToast('Metadata fetched ✓');
+    });
+    audioInput.addEventListener('keydown',e=>{ if(e.key==='Enter') fetchBtn.click(); });
+
+    // live cover preview
+    row.querySelector('.me-cover').addEventListener('input',e=>{
+      const thumb=row.querySelector('.cover-thumb');
+      if(thumb.tagName==='IMG'){ thumb.src=e.target.value; }
+      else if(e.target.value){ const img=document.createElement('img'); img.src=e.target.value; img.style.cssText='width:38px;height:38px;border-radius:3px;object-fit:cover;flex-shrink:0;'; thumb.replaceWith(img); }
+    });
+
     row.querySelector('.save-me-btn').addEventListener('click',()=>{
       const arr=isOrig?D.originals:D.recreates;
       arr[i].title    = row.querySelector('.me-title').value;
@@ -1186,6 +1288,7 @@ function renderCPMusic(type){
       arr[i].feat     = row.querySelector('.me-feat').value;
       arr[i].desc     = row.querySelector('.me-desc').value;
       arr[i].audioUrl = row.querySelector('.me-audio').value.trim();
+      arr[i].coverUrl = row.querySelector('.me-cover').value.trim();
       arr[i].emoji    = row.querySelector('.me-emoji').value;
       arr[i].tags     = row.querySelector('.me-tags').value.split(',').map(x=>x.trim()).filter(Boolean);
       if(!isOrig){
