@@ -841,6 +841,7 @@ let D = loadLocalCache();
       saveLocalCache(D);
       renderAll();
       populateCP();
+      setTimeout(observeReveal, 100);
     } else {
       await _DOC.set(D);
     }
@@ -940,7 +941,7 @@ function renderBeats(){
   });
 
   observer.disconnect();
-  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+  observeReveal();
   updateCardUI();
 }
 
@@ -1002,12 +1003,8 @@ function renderMusic(type){
     if(isSC)    actions += `<a class="mc-ext-btn" href="${escAttr(scUrl)}" target="_blank" rel="noopener">☁ SoundCloud</a>`;
     if(isYT)    actions += `<a class="mc-ext-btn" href="${escAttr(scUrl)}" target="_blank" rel="noopener">▶ YouTube</a>`;
 
-    // cover overlay play — prefer SC/YT link, fall back to mp3
-    const coverHref = hasSC ? scUrl : null;
-    const coverPlayBtn = coverHref ? `
-      <a class="mc-cover-play" href="${escAttr(coverHref)}" target="_blank" rel="noopener" title="Open">
-        <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
-      </a>` : hasAudio ? `
+    // cover overlay play — only plays audio directly
+    const coverPlayBtn = hasAudio ? `
       <button class="mc-cover-play mc-do-play" data-id="${t.id}" data-type="${type}" title="Play">
         <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
       </button>` : '';
@@ -1049,7 +1046,7 @@ function renderMusic(type){
   });
 
   observer.disconnect();
-  document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+  observeReveal();
   updateMusicCardUI();
 }
 
@@ -1862,6 +1859,7 @@ document.getElementById('volSlider').addEventListener('input',e=>{
 /* ═══════════════════════════════════════════════════
    SCROLL / REVEAL / ACTIVE NAV
 ═══════════════════════════════════════════════════ */
+function observeReveal(){ document.querySelectorAll('.reveal:not(.observed)').forEach(el=>{el.classList.add('observed');observer.observe(el);}); }
 const observer = new IntersectionObserver(entries=>
   entries.forEach(e=>{ if(e.isIntersecting) e.target.classList.add('in'); })
 ,{threshold:.08});
@@ -1907,7 +1905,7 @@ function escAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
    INIT
 ═══════════════════════════════════════════════════ */
 renderAll();
-document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+observeReveal();
 
 /* Mobile hamburger menu */
 const hamburger = document.getElementById('hamburger');
