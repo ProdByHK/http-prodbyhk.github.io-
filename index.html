@@ -960,14 +960,26 @@ function toggleMusicPlay(track, mtype){
     }
   });
   musicAudio.addEventListener('ended',()=>{ stopMusicPlay(); });
-  // update bottom player
+  // update bottom player bar
+  const thumb = document.getElementById('pThumb');
+  if(track.coverUrl){
+    thumb.innerHTML = `<img src="${track.coverUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.parentElement.textContent='${(track.emoji||'🎵').replace(/'/g,"\\'")}'">`; 
+    thumb.style.padding='0';
+  } else {
+    thumb.textContent = track.emoji||'🎵';
+    thumb.style.padding='';
+  }
   document.getElementById('pIdle').style.display='none';
   document.getElementById('pMeta').style.display='block';
   document.getElementById('pTrackName').textContent=track.title;
   document.getElementById('pTrackMeta').textContent=`${track.artist||''} · ${mtype==='originals'?'Original':'Recreate'}`;
-  document.getElementById('pThumb').textContent=track.emoji||'🎵';
-  document.getElementById('pThumb').classList.add('on');
+  thumb.classList.add('on');
   updateMusicCardUI();
+  // handle load error (e.g. Google Drive CORS block)
+  musicAudio.addEventListener('error',()=>{
+    stopMusicPlay();
+    showToast('⚠️ Audio blocked — use a Dropbox or GitHub raw link instead of Google Drive');
+  });
 }
 function stopMusicPlay(){
   if(musicAudio){ musicAudio.pause(); musicAudio=null; }
