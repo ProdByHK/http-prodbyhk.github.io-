@@ -648,49 +648,24 @@ const DEFAULTS = {
   title2: 'DAILY DROPS',
   bio: 'Hard-hitting trap, lo-fi soul, drill, and sample flips. Premium instrumentals built for artists who demand the best. Every beat crafted from scratch — no loops, no templates.',
   accent: '#FF2200',
-  stats: 'Beats:200+, Artists:50+, Years:5',
+  stats: 'Beats:0, Artists:0, Years:1',
   contactSub: 'Get in touch for collabs, custom beats, and sync inquiries.',
   footer: '© 2025 prod.byhk — All Rights Reserved',
-  about1: '<strong>HK</strong> is a New York-based producer rooted in hip-hop, trap, and left-field soul. Inspired by the golden era of SP-404 sampling and modern 808 architecture — every beat lives at the intersection of raw and refined.',
-  about2: 'Every beat is crafted from scratch — no loops, no template kits. Drums hand-programmed, samples flipped beyond recognition, every mix done to professional standards.',
-  gear: 'MPC One, SP-404 MK2, Roland TR-8S, Maschine+, Moog Subsequent 25, Focal Alpha 65, Ableton Live 12, Pro Tools',
-  credits: [
-    {beat:'NY Grime', artist:'@wavvyrae', year:'2024'},
-    {beat:'Late Night Drive', artist:'Spotify Editorial', year:'2024'},
-    {beat:'Sample Flip Vol.3', artist:'@illcircle', year:'2023'},
-    {beat:'4AM Interlude', artist:'Short Film Sync', year:'2023'},
-    {beat:'Drill Season', artist:'@sav.wav', year:'2024'},
-    {beat:'Ghost Keys', artist:'@levvxn', year:'2024'},
-  ],
-  beats: [
-    {id:1,title:'NY Grime',       genre:'trap',   bpm:88, key:'Dm', emoji:'🥊',tags:['808s','dark']},
-    {id:2,title:'Late Night Drive',genre:'lofi',  bpm:92, key:'Am', emoji:'🌙',tags:['mellow','keys']},
-    {id:3,title:'Sample Flip Vol 4',genre:'boom', bpm:85, key:'Gm', emoji:'📀',tags:['vinyl','chopped']},
-    {id:4,title:'Drill Season',   genre:'drill',  bpm:140,key:'F#m',emoji:'❄️',tags:['dark','uk']},
-    {id:5,title:'4AM Interlude',  genre:'ambient',bpm:76, key:'Cm', emoji:'🌫️',tags:['atmospheric','sub']},
-    {id:6,title:'Ghost Keys',     genre:'trap',   bpm:130,key:'Bm', emoji:'👻',tags:['piano','melodic']},
-    {id:7,title:'Soul Chop #12',  genre:'boom',   bpm:94, key:'Eb', emoji:'🎷',tags:['soul','sample']},
-    {id:8,title:'Rain Season',    genre:'lofi',   bpm:78, key:'Fm', emoji:'🌧️',tags:['chill','rainy']},
-    {id:9,title:'War Ready',      genre:'drill',  bpm:150,key:'Cm', emoji:'⚔️',tags:['hard','drill']},
-  ],
+  about1: 'Add your bio here.',
+  about2: 'Add more info here.',
+  gear: 'Ableton Live, MPC One',
+  credits: [],
+  beats: [],
   links: [
     {label:'SoundCloud', icon:'☁', val:'soundcloud.com/prodbyhk', url:'#'},
     {label:'Instagram',  icon:'📷', val:'@prod.byhk', url:'#'},
     {label:'YouTube',    icon:'▶', val:'youtube.com/prodbyhk', url:'#'},
-    {label:'Beatstars',  icon:'🎹', val:'beatstars.com/prodbyhk', url:'#'},
     {label:'Email',      icon:'✉', val:'hk@prodbyhk.com', url:'mailto:hk@prodbyhk.com'},
   ],
   origDesc: 'My own original productions — beats, instrumentals, and full songs built from scratch.',
   recDesc:  'My takes on iconic beats — breaking down how classic tracks were made and recreating them from memory.',
-  originals: [
-    {id:101,title:'Ghost in the Machine',artist:'prod.byhk',feat:'',desc:'Dark melodic trap with heavy sub bass and layered 808s.',audioUrl:'',emoji:'👾',tags:['trap','melodic','dark']},
-    {id:102,title:'Rainy Season Vol.1',  artist:'prod.byhk',feat:'',desc:'Lo-fi beat tape recorded live on the MPC One.',audioUrl:'',emoji:'🌧️',tags:['lofi','mpc','tape']},
-    {id:103,title:'4AM Sessions',        artist:'prod.byhk',feat:'',desc:'Ambient instrumental — made at 4am obviously.',audioUrl:'',emoji:'🌙',tags:['ambient','instrumental']},
-  ],
-  recreates: [
-    {id:201,title:'Sicko Mode (Recreate)',artist:'prod.byhk',origArtist:'Travis Scott ft. Drake',origSong:'SICKO MODE',desc:'Full recreation from scratch — ear-trained every switch.',audioUrl:'',emoji:'🔥',tags:['trap','recreate','travis']},
-    {id:202,title:'Knife Talk (Recreate)',artist:'prod.byhk',origArtist:'Drake ft. 21 Savage',origSong:'Knife Talk',desc:'808 melody recreation + drum programming from scratch.',audioUrl:'',emoji:'⚔️',tags:['drill','recreate','drake']},
-  ]
+  originals: [],
+  recreates: []
 };
 
 /* ═══════════════════════════════════════════════════
@@ -698,13 +673,13 @@ const DEFAULTS = {
 ═══════════════════════════════════════════════════ */
 function loadData(){
   try{
-    const saved = localStorage.getItem('prodbyhk_data');
+    const saved = localStorage.getItem('prodbyhk_data_v2');
     if(saved) return JSON.parse(saved);
   }catch(e){}
   return JSON.parse(JSON.stringify(DEFAULTS));
 }
 function saveData(d){
-  localStorage.setItem('prodbyhk_data', JSON.stringify(d));
+  localStorage.setItem('prodbyhk_data_v2', JSON.stringify(d));
 }
 let D = loadData();
 
