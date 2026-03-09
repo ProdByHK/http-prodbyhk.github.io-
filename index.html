@@ -447,6 +447,9 @@ footer{padding:1.8rem 2.5rem;border-top:1px solid var(--border);display:flex;jus
   .cp-row3{grid-template-columns:1fr;}
 }
 </style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -791,17 +794,60 @@ const DEFAULTS = {
 /* ═══════════════════════════════════════════════════
    STATE — load from localStorage or defaults
 ═══════════════════════════════════════════════════ */
-function loadData(){
+/* ═══════════════════════════════════════════════════
+   FIREBASE SETUP
+═══════════════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey: "AIzaSyCoRpnkEFqDWw4Fnm3aajwIt0S1E5fTQLk",
+  authDomain: "prodbyhk.firebaseapp.com",
+  projectId: "prodbyhk",
+  storageBucket: "prodbyhk.firebasestorage.app",
+  messagingSenderId: "865299589933",
+  appId: "1:865299589933:web:1012184a3effc4425781a4"
+};
+const _fbApp = firebase.initializeApp(firebaseConfig);
+const _db    = firebase.firestore();
+const _DOC   = _db.collection('portfolio').doc('data');
+
+/* ═══════════════════════════════════════════════════
+   STATE — load from Firestore (fallback: localStorage -> defaults)
+═══════════════════════════════════════════════════ */
+function loadLocalCache(){
   try{
-    const saved = localStorage.getItem('prodbyhk_data_v2');
-    if(saved) return JSON.parse(saved);
+    const s = localStorage.getItem('prodbyhk_data_v2');
+    if(s) return JSON.parse(s);
   }catch(e){}
   return JSON.parse(JSON.stringify(DEFAULTS));
 }
-function saveData(d){
-  localStorage.setItem('prodbyhk_data_v2', JSON.stringify(d));
+function saveLocalCache(d){
+  try{ localStorage.setItem('prodbyhk_data_v2', JSON.stringify(d)); }catch(e){}
 }
-let D = loadData();
+async function saveData(d){
+  saveLocalCache(d);
+  try{
+    await _DOC.set(d);
+  }catch(e){
+    console.warn('Firebase save failed, data in localStorage only:', e);
+  }
+}
+
+let D = loadLocalCache();
+
+(async()=>{
+  try{
+    const snap = await _DOC.get();
+    if(snap.exists){
+      D = snap.data();
+      saveLocalCache(D);
+      renderAll();
+      populateCP();
+    } else {
+      await _DOC.set(D);
+    }
+  }catch(e){
+    console.warn('Firebase load failed, using cache:', e);
+  }
+})();
 
 /* ═══════════════════════════════════════════════════
    RENDER PORTFOLIO
@@ -1470,19 +1516,20 @@ function collectCPData(){
   }));
 }
 
-document.getElementById('cpApply').addEventListener('click',()=>{
+document.getElementById('cpApply').addEventListener('click', async ()=>{
   collectCPData();
-  saveData(D);
   renderAll();
-  showToast('Changes saved & applied ✓');
+  showToast('Saving…');
+  await saveData(D);
+  showToast('Saved & synced to cloud ✓');
 });
-document.getElementById('cpReset').addEventListener('click',()=>{
+document.getElementById('cpReset').addEventListener('click', async ()=>{
   if(!confirm('Reset all content to defaults?')) return;
   D = JSON.parse(JSON.stringify(DEFAULTS));
-  saveData(D);
   populateCP();
   renderAll();
-  showToast('Reset to defaults');
+  await saveData(D);
+  showToast('Reset & synced to cloud');
 });
 
 /* Live accent preview */
