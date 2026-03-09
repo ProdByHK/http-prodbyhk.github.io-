@@ -340,17 +340,111 @@ footer{padding:1.8rem 2.5rem;border-top:1px solid var(--border);display:flex;jus
 /* ═══════════════════════════════════
    UTILITIES
 ═══════════════════════════════════ */
+/* ═══════════════════════════════════
+   UTILITIES
+═══════════════════════════════════ */
 .reveal{opacity:0;transform:translateY(14px);transition:opacity .55s ease,transform .55s ease;}
 .reveal.in{opacity:1;transform:none;}
-@media(max-width:768px){
-  nav{padding:0 1.2rem;}
+
+/* Mobile hamburger menu */
+.hamburger{display:none;flex-direction:column;gap:4px;padding:.5rem;cursor:pointer;background:none;border:none;}
+.hamburger span{width:20px;height:2px;background:var(--muted);border-radius:1px;transition:all .3s;}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg);background:var(--text);}
+.hamburger.open span:nth-child(2){opacity:0;}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg);background:var(--text);}
+.mobile-menu{display:none;position:fixed;top:52px;left:0;right:0;background:rgba(7,7,10,.98);backdrop-filter:blur(24px);border-bottom:1px solid var(--border);z-index:699;padding:1rem 1.2rem;flex-direction:column;gap:.2rem;}
+.mobile-menu.open{display:flex;}
+.mobile-menu a{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);padding:.65rem 0;border-bottom:1px solid var(--border);transition:color .2s;}
+.mobile-menu a:last-child{border-bottom:none;}
+.mobile-menu a:hover,.mobile-menu a.active{color:var(--accent);}
+
+@media(max-width:640px){
+  .hamburger{display:flex;}
+}
+═══════════════════════════════════ */
+
+/* Tablet */
+@media(max-width:900px){
+  .about-layout{grid-template-columns:1fr;gap:2.5rem;}
+  .music-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));}
+  .beats-grid{grid-template-columns:repeat(auto-fill,minmax(240px,1fr));}
+}
+
+/* Mobile */
+@media(max-width:640px){
+  :root{--panel-w:100vw;}
+
+  /* Nav */
+  nav{padding:0 1rem;height:52px;}
   .nav-links{display:none;}
-  #hero,#beats,#about,#contact,#originals,#recreates{padding-left:1.2rem;padding-right:1.2rem;}
+  .edit-toggle-btn span:not(.edit-icon){display:none;}
+  .edit-toggle-btn{padding:.42rem .7rem;}
+
+  /* Hero */
+  #hero{padding:3.5rem 1.2rem 3rem;}
+  h1.hero-title{font-size:clamp(2.8rem,14vw,4.5rem);}
+  .hero-bio{font-size:.75rem;}
+  .hero-stats{gap:2rem;}
+  .stat .n{font-size:2rem;}
+
+  /* Sections */
+  #beats,#originals,#recreates,#about,#contact{padding:2.5rem 1.2rem;}
+  .section-title{font-size:1.6rem;}
+
+  /* Music + beats grid — single column on small phones */
+  .music-grid{grid-template-columns:1fr;border-radius:4px;}
+  .beats-grid{grid-template-columns:1fr;border-radius:4px;}
+
+  /* Music card cover smaller */
+  .mc-cover{aspect-ratio:16/9;}
+
+  /* Links grid */
+  .links-grid{grid-template-columns:1fr 1fr;gap:.5rem;}
+  .social-link{padding:.75rem .9rem;gap:.6rem;}
+  .sl-val{font-size:.68rem;}
+
+  /* About */
   .about-layout{grid-template-columns:1fr;gap:2rem;}
-  #player{padding:0 1rem;gap:.75rem;}
+
+  /* Player bar — compact */
+  #player{padding:0 .85rem;gap:.7rem;height:62px;--player-h:62px;}
+  .p-info{min-width:0;flex:1;overflow:hidden;}
+  .p-thumb{width:36px;height:36px;font-size:1rem;flex-shrink:0;}
+  .p-track{font-size:.75rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
   .p-vol{display:none;}
-  .p-info{min-width:140px;}
-  #control-panel{width:100%;--panel-w:100%;}
+  .p-progress{min-width:0;}
+  .p-btn{width:26px;height:26px;}
+  .p-btn.main{width:34px;height:34px;}
+  .p-btn svg{width:11px;}
+  .prog-times{font-size:.5rem;}
+
+  /* Control Panel full screen */
+  #control-panel{width:100%;border-left:none;border-top:1px solid var(--border2);}
+  .cp-tabs{gap:.2rem;padding:.6rem .8rem;}
+  .cp-tab{font-size:.58rem;padding:.35rem .55rem;}
+  .cp-body{padding:.75rem .9rem;}
+  .cp-row{grid-template-columns:1fr;}
+  .cp-row3{grid-template-columns:1fr 1fr;}
+
+  /* Password modal */
+  .pw-modal{padding:2rem 1.5rem;width:92vw;}
+
+  /* Embed modal */
+  .embed-modal{width:96vw;}
+
+  /* Footer */
+  footer{padding:1.2rem 1.2rem;flex-direction:column;text-align:center;gap:.4rem;}
+
+  /* Section padding bottom for player */
+  body{padding-bottom:calc(62px + 8px);}
+}
+
+/* Very small phones */
+@media(max-width:380px){
+  h1.hero-title{font-size:clamp(2.4rem,13vw,3.5rem);}
+  .links-grid{grid-template-columns:1fr;}
+  .hero-stats{gap:1.5rem;}
+  .cp-row3{grid-template-columns:1fr;}
 }
 </style>
 </head>
@@ -421,11 +515,22 @@ footer{padding:1.8rem 2.5rem;border-top:1px solid var(--border);display:flex;jus
     <li><a href="#contact" class="nav-link">Links</a></li>
   </ul>
   <div class="nav-right">
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <button class="edit-toggle-btn" id="editToggle">
       <span class="edit-icon"></span> Edit
     </button>
   </div>
 </nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#originals" class="mobile-nav-link">Original Beats</a>
+  <a href="#recreates" class="mobile-nav-link">Recreates</a>
+  <a href="#about" class="mobile-nav-link">About</a>
+  <a href="#contact" class="mobile-nav-link">Links</a>
+</div>
 
 <!-- HERO -->
 <section id="hero">
@@ -1757,122 +1862,144 @@ function escAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
 renderAll();
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 </script>
+/* Mobile hamburger menu */
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click',()=>{
+  hamburger.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+document.querySelectorAll('.mobile-nav-link').forEach(a=>{
+  a.addEventListener('click',()=>{
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+  });
+});
+
 /* ═══════════════════════════════════════════════════
-   INTERACTIVE RIPPLE GRID
+   INTERACTIVE PARTICLES
 ═══════════════════════════════════════════════════ */
 (function(){
   const canvas = document.getElementById('grid-canvas');
   const ctx = canvas.getContext('2d');
-  const SPACING = 38;
-  let W, H, cols, rows, points;
-  let mouse = {x:-9999, y:-9999};
-  let accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF2200';
+  let W, H, mouse = {x:null,y:null}, particles = [], accentRGB = [255,34,0];
 
   function hex2rgb(hex){
-    hex = hex.replace('#','');
+    hex=(hex||'#FF2200').replace('#','');
     if(hex.length===3) hex=hex.split('').map(c=>c+c).join('');
     const n=parseInt(hex,16);
     return [(n>>16)&255,(n>>8)&255,n&255];
   }
 
   function resize(){
-    W = canvas.width  = window.innerWidth;
-    H = canvas.height = window.innerHeight;
-    cols = Math.ceil(W/SPACING)+2;
-    rows = Math.ceil(H/SPACING)+2;
-    points = [];
-    for(let r=0;r<rows;r++){
-      for(let c=0;c<cols;c++){
-        points.push({
-          x: c*SPACING, y: r*SPACING,
-          ox: c*SPACING, oy: r*SPACING,
-          vx:0, vy:0
-        });
+    W=canvas.width=window.innerWidth;
+    H=canvas.height=window.innerHeight;
+  }
+
+  class Particle {
+    constructor(){this.reset(true);}
+    reset(random){
+      this.x = random ? Math.random()*W : (mouse.x||W/2);
+      this.y = random ? Math.random()*H : (mouse.y||H/2);
+      this.size = Math.random()*2+0.4;
+      this.speedX = (Math.random()-0.5)*0.6;
+      this.speedY = (Math.random()-0.5)*0.6;
+      this.life = 1;
+      this.decay = Math.random()*0.004+0.003;
+      this.glow = Math.random()>0.85;
+    }
+    update(){
+      if(mouse.x!==null){
+        const dx=mouse.x-this.x, dy=mouse.y-this.y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        const maxDist=180;
+        if(dist<maxDist){
+          const force=(1-dist/maxDist)*0.04;
+          this.speedX+=dx*force*0.1;
+          this.speedY+=dy*force*0.1;
+        }
+      }
+      this.speedX*=0.97;
+      this.speedY*=0.97;
+      this.x+=this.speedX;
+      this.y+=this.speedY;
+      this.life-=this.decay;
+      if(this.life<=0||this.x<-10||this.x>W+10||this.y<-10||this.y>H+10) this.reset(false);
+    }
+    draw(){
+      const [r,g,b]=accentRGB;
+      const alpha=this.life*0.55;
+      if(this.glow){
+        const grd=ctx.createRadialGradient(this.x,this.y,0,this.x,this.y,this.size*8);
+        grd.addColorStop(0,`rgba(${r},${g},${b},${alpha*0.5})`);
+        grd.addColorStop(1,`rgba(${r},${g},${b},0)`);
+        ctx.beginPath();
+        ctx.arc(this.x,this.y,this.size*8,0,Math.PI*2);
+        ctx.fillStyle=grd;
+        ctx.fill();
+      }
+      ctx.beginPath();
+      ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${r},${g},${b},${alpha})`;
+      ctx.fill();
+    }
+  }
+
+  // also draw connecting lines between nearby particles
+  function drawConnections(){
+    const [r,g,b]=accentRGB;
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x;
+        const dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<90){
+          const alpha=(1-dist/90)*0.12*Math.min(particles[i].life,particles[j].life);
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.strokeStyle=`rgba(${r},${g},${b},${alpha})`;
+          ctx.lineWidth=0.5;
+          ctx.stroke();
+        }
       }
     }
   }
 
-  function draw(){
-    accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-    const [ar,ag,ab] = hex2rgb(accentColor);
+  // spawn burst on click
+  function spawnBurst(x,y){
+    for(let i=0;i<18;i++){
+      const p=new Particle();
+      p.x=x; p.y=y;
+      const ang=Math.random()*Math.PI*2;
+      const spd=Math.random()*3+1;
+      p.speedX=Math.cos(ang)*spd;
+      p.speedY=Math.sin(ang)*spd;
+      p.life=1;
+      p.decay=Math.random()*0.012+0.008;
+      p.size=Math.random()*2.5+0.5;
+      particles.push(p);
+    }
+  }
+
+  function animate(){
+    accentRGB = hex2rgb(getComputedStyle(document.documentElement).getPropertyValue('--accent').trim());
     ctx.clearRect(0,0,W,H);
-
-    // update points
-    for(const p of points){
-      const dx = mouse.x - p.ox;
-      const dy = mouse.y - p.oy;
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      const RADIUS = 120, STRENGTH = 10;
-      if(dist<RADIUS){
-        const force = (1-dist/RADIUS)*STRENGTH;
-        const ang = Math.atan2(dy,dx);
-        p.vx -= Math.cos(ang)*force*0.4;
-        p.vy -= Math.sin(ang)*force*0.4;
-      }
-      // spring back
-      p.vx += (p.ox - p.x)*0.12;
-      p.vy += (p.oy - p.y)*0.12;
-      // damping
-      p.vx *= 0.72;
-      p.vy *= 0.72;
-      p.x += p.vx;
-      p.y += p.vy;
-    }
-
-    // draw horizontal lines
-    for(let r=0;r<rows;r++){
-      ctx.beginPath();
-      for(let c=0;c<cols;c++){
-        const p = points[r*cols+c];
-        const dx=p.x-p.ox, dy=p.y-p.oy;
-        const disp=Math.sqrt(dx*dx+dy*dy);
-        const alpha=0.06+Math.min(disp/8,1)*0.55;
-        ctx.strokeStyle=`rgba(${ar},${ag},${ab},${alpha})`;
-        ctx.lineWidth=0.7+Math.min(disp/12,1)*1.2;
-        if(c===0) ctx.moveTo(p.x,p.y);
-        else ctx.lineTo(p.x,p.y);
-      }
-      ctx.stroke();
-    }
-
-    // draw vertical lines
-    for(let c=0;c<cols;c++){
-      ctx.beginPath();
-      for(let r=0;r<rows;r++){
-        const p = points[r*cols+c];
-        const dx=p.x-p.ox, dy=p.y-p.oy;
-        const disp=Math.sqrt(dx*dx+dy*dy);
-        const alpha=0.06+Math.min(disp/8,1)*0.55;
-        ctx.strokeStyle=`rgba(${ar},${ag},${ab},${alpha})`;
-        ctx.lineWidth=0.7+Math.min(disp/12,1)*1.2;
-        if(r===0) ctx.moveTo(p.x,p.y);
-        else ctx.lineTo(p.x,p.y);
-      }
-      ctx.stroke();
-    }
-
-    // draw intersection dots at displaced points
-    for(const p of points){
-      const dx=p.x-p.ox, dy=p.y-p.oy;
-      const disp=Math.sqrt(dx*dx+dy*dy);
-      if(disp>0.5){
-        const alpha=Math.min(disp/10,1)*0.7;
-        ctx.beginPath();
-        ctx.arc(p.x,p.y,Math.min(disp/8,2),0,Math.PI*2);
-        ctx.fillStyle=`rgba(${ar},${ag},${ab},${alpha})`;
-        ctx.fill();
-      }
-    }
-
-    requestAnimationFrame(draw);
+    drawConnections();
+    particles.forEach(p=>{p.update();p.draw();});
+    requestAnimationFrame(animate);
   }
 
   window.addEventListener('mousemove',e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
-  window.addEventListener('touchmove',e=>{ if(e.touches[0]){ mouse.x=e.touches[0].clientX; mouse.y=e.touches[0].clientY; }},{passive:true});
-  window.addEventListener('mouseleave',()=>{ mouse.x=-9999; mouse.y=-9999; });
-  window.addEventListener('resize', resize);
+  window.addEventListener('touchmove',e=>{ if(e.touches[0]){mouse.x=e.touches[0].clientX;mouse.y=e.touches[0].clientY;}},{passive:true});
+  window.addEventListener('mouseleave',()=>{ mouse.x=null; mouse.y=null; });
+  window.addEventListener('click',e=>spawnBurst(e.clientX,e.clientY));
+  window.addEventListener('resize',resize);
+
   resize();
-  draw();
+  // init particles spread across screen
+  for(let i=0;i<120;i++) particles.push(new Particle());
+  animate();
 })();
 
 </body>
