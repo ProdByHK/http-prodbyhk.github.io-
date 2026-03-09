@@ -822,16 +822,7 @@ function saveLocalCache(d){
 let D = loadLocalCache();
 let _DOC = null;
 
-// Init Firebase safely — site works even if Firebase fails
-try{
-  const _fbApp = firebase.initializeApp(firebaseConfig);
-  const _db    = firebase.firestore();
-  _DOC = _db.collection('portfolio').doc('data');
-  // Enable offline persistence so it works without internet
-  _db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
-}catch(e){
-  console.warn('Firebase init failed, running in offline mode:', e);
-}
+// Firebase inits AFTER page renders — done in initFirebase() called at bottom
 
 async function saveData(d){
   d._savedAt = Date.now(); // timestamp every save
@@ -841,29 +832,7 @@ async function saveData(d){
   catch(e){ console.warn('Firebase save failed:', e); }
 }
 
-// Load from Firebase in background — only update if Firebase data is NEWER
-if(_DOC){
-  _DOC.get().then(snap=>{
-    if(snap && snap.exists){
-      const remote = snap.data();
-      const localTs  = D._savedAt || 0;
-      const remoteTs = remote._savedAt || 0;
-      // Only replace local data if Firebase version is strictly newer
-      if(remoteTs > localTs){
-        D = remote;
-        saveLocalCache(D);
-        renderAll();
-        populateCP();
-        setTimeout(observeReveal, 100);
-      } else if(localTs > remoteTs){
-        // Local is newer — push to Firebase
-        _DOC.set(D).catch(()=>{});
-      }
-    } else if(snap && !snap.exists){
-      _DOC.set(D).catch(()=>{});
-    }
-  }).catch(e=>{ console.warn('Firebase load failed, using cache:', e); });
-}
+// Firebase sync happens later via initFirebase()
 
 /* ═══════════════════════════════════════════════════
    RENDER PORTFOLIO
@@ -1917,10 +1886,44 @@ function escHtml(s){ const d=document.createElement('div'); d.textContent=s||'';
 function escAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
 
 /* ═══════════════════════════════════════════════════
-   INIT
+   INIT — render immediately from cache, Firebase syncs after
 ═══════════════════════════════════════════════════ */
 renderAll();
 observeReveal();
+
+function initFirebase(){
+  try{
+    if(typeof firebase === 'undefined') return;
+    const _fbApp = firebase.initializeApp(firebaseConfig);
+    const _db    = firebase.firestore();
+    _DOC = _db.collection('portfolio').doc('data');
+    _db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+
+    _DOC.get().then(snap=>{
+      if(!snap) return;
+      if(snap.exists){
+        const remote = snap.data();
+        const localTs  = D._savedAt || 0;
+        const remoteTs = remote._savedAt || 0;
+        if(remoteTs > localTs){
+          D = remote;
+          saveLocalCache(D);
+          renderAll();
+          populateCP();
+          setTimeout(observeReveal, 100);
+        } else if(localTs > remoteTs){
+          _DOC.set(D).catch(()=>{});
+        }
+      } else {
+        _DOC.set(D).catch(()=>{});
+      }
+    }).catch(e=>console.warn('Firebase fetch failed:', e));
+  }catch(e){
+    console.warn('Firebase init failed:', e);
+  }
+}
+// Delay Firebase init so page renders first
+setTimeout(initFirebase, 200);
 
 /* Mobile hamburger menu */
 const hamburger = document.getElementById('hamburger');
