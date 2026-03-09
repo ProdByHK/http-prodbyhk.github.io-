@@ -826,11 +826,12 @@ function renderMusic(type){
   }
 
   gridEl.innerHTML = items.map((t,i)=>{
-    const url = (t.audioUrl||'').trim();
-    const hasUrl = !!url;
-    const isYT = hasUrl && url.includes('youtu');
-    const isSC = hasUrl && url.includes('soundcloud');
-    const isDirectAudio = hasUrl && !isYT && !isSC;
+    const audioUrl = (t.audioUrl||'').trim();   // direct mp3
+    const scUrl    = (t.scUrl||'').trim();       // soundcloud/youtube
+    const hasAudio = !!audioUrl;
+    const hasSC    = !!scUrl;
+    const isYT     = hasSC && scUrl.includes('youtu');
+    const isSC     = hasSC && scUrl.includes('soundcloud');
     const cover = t.coverUrl||'';
     const tags = (t.tags||[]).map(x=>`<span class="mc-tag">${escHtml(x)}</span>`).join('');
     const refRow = !isOrig && t.origArtist ? `
@@ -839,22 +840,20 @@ function renderMusic(type){
         <span style="color:var(--text)">${escHtml(t.origSong||'')} — ${escHtml(t.origArtist)}</span>
       </div>` : '';
 
-    let actionBtn = '';
-    if(isDirectAudio){
-      actionBtn = `<button class="mc-do-play" data-id="${t.id}" data-type="${type}" title="Play">
-        <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
-      </button>`;
-    } else if(isYT){
-      actionBtn = `<a class="mc-ext-btn" href="${escAttr(url)}" target="_blank" rel="noopener">▶ YouTube</a>`;
-    } else if(isSC){
-      actionBtn = `<a class="mc-ext-btn" href="${escAttr(url)}" target="_blank" rel="noopener">☁ SoundCloud</a>`;
-    }
+    // bottom action buttons — both can show at same time
+    let actions = '';
+    if(hasAudio) actions += `<button class="mc-do-play" data-id="${t.id}" data-type="${type}" title="Play preview">
+      <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
+    </button>`;
+    if(isSC)    actions += `<a class="mc-ext-btn" href="${escAttr(scUrl)}" target="_blank" rel="noopener">☁ SoundCloud</a>`;
+    if(isYT)    actions += `<a class="mc-ext-btn" href="${escAttr(scUrl)}" target="_blank" rel="noopener">▶ YouTube</a>`;
 
-    // Cover play button (only for external links)
-    const coverPlayBtn = (isYT||isSC) ? `
-      <a class="mc-cover-play" href="${escAttr(url)}" target="_blank" rel="noopener" title="Open">
+    // cover overlay play — prefer SC/YT link, fall back to mp3
+    const coverHref = hasSC ? scUrl : null;
+    const coverPlayBtn = coverHref ? `
+      <a class="mc-cover-play" href="${escAttr(coverHref)}" target="_blank" rel="noopener" title="Open">
         <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
-      </a>` : isDirectAudio ? `
+      </a>` : hasAudio ? `
       <button class="mc-cover-play mc-do-play" data-id="${t.id}" data-type="${type}" title="Play">
         <svg viewBox="0 0 10 12"><path d="M0 0L10 6 0 12z"/></svg>
       </button>` : '';
@@ -869,7 +868,7 @@ function renderMusic(type){
         <span class="mc-cover-badge ${isOrig?'original':'recreate'}">${isOrig?'Original':'Recreate'}</span>
         ${coverPlayBtn}
       </div>
-      ${isDirectAudio?`<div class="mc-progress"><div class="mc-progress-fill" id="mcp-${t.id}"></div></div>`:''}
+      ${hasAudio?`<div class="mc-progress"><div class="mc-progress-fill" id="mcp-${t.id}"></div></div>`:''}
       <div class="mc-body">
         <div>
           <div class="mc-title">${escHtml(t.title)}</div>
@@ -880,7 +879,7 @@ function renderMusic(type){
       </div>
       <div class="mc-bottom">
         <div class="mc-tags">${tags}</div>
-        <div class="mc-actions">${actionBtn}</div>
+        <div class="mc-actions">${actions}</div>
       </div>
     </div>`;
   }).join('');
@@ -1187,16 +1186,18 @@ function renderCPMusic(type){
       <div class="cp-beat-edit-body">
         <!-- AUTO FETCH -->
         <div class="cp-field">
-          <label class="cp-label">🔗 Paste SoundCloud / YouTube URL to auto-fill</label>
+          <label class="cp-label">☁ SoundCloud / YouTube URL <span style="color:var(--muted)">(auto-fill cover + title)</span></label>
           <div class="fetch-bar">
-            <input class="cp-input me-audio" value="${escAttr(t.audioUrl||'')}" placeholder="https://soundcloud.com/... or youtube.com/...">
+            <input class="cp-input me-sc" value="${escAttr(t.scUrl||'')}" placeholder="https://soundcloud.com/... or youtube.com/...">
             <button class="fetch-btn" type="button">Fetch ↓</button>
           </div>
           <div class="fetch-preview" style="display:none"></div>
-          <span style="font-size:.55rem;color:var(--muted);margin-top:3px;display:block;line-height:1.6">
-            SoundCloud / YouTube → opens in new tab (browser blocks embedded playback).<br>
-            Direct .mp3 link → plays inside the site.
-          </span>
+          <span style="font-size:.55rem;color:var(--muted);margin-top:3px;display:block;line-height:1.6">Opens SoundCloud/YouTube in new tab when clicked → grows your plays.</span>
+        </div>
+        <div class="cp-field">
+          <label class="cp-label">▶ Direct MP3 URL <span style="color:var(--muted)">(plays inside the site)</span></label>
+          <input class="cp-input me-audio" value="${escAttr(t.audioUrl||'')}" placeholder="https://drive.google.com/uc?export=download&id=...">
+          <span style="font-size:.55rem;color:var(--muted);margin-top:3px;display:block;line-height:1.6">Google Drive or Dropbox direct link → plays in the bottom player bar.</span>
         </div>
         <!-- PREVIEW -->
         <div class="cp-field">
@@ -1248,31 +1249,29 @@ function renderCPMusic(type){
 
     // FETCH button
     const fetchBtn = row.querySelector('.fetch-btn');
-    const audioInput = row.querySelector('.me-audio');
-    const preview = row.querySelector('.fetch-preview');
+    const scInput  = row.querySelector('.me-sc');
+    const preview  = row.querySelector('.fetch-preview');
     fetchBtn.addEventListener('click', async()=>{
-      const url = audioInput.value.trim();
-      if(!url){ showToast('Paste a URL first'); return; }
+      const url = scInput.value.trim();
+      if(!url){ showToast('Paste a SoundCloud or YouTube URL first'); return; }
       fetchBtn.textContent='…'; fetchBtn.disabled=true;
       const meta = await fetchMeta(url);
       fetchBtn.textContent='Fetch ↓'; fetchBtn.disabled=false;
-      if(!meta){ showToast('Could not fetch metadata — fill in manually'); return; }
-      // fill fields
+      if(!meta){ showToast('Could not fetch — fill in manually'); return; }
       row.querySelector('.me-title').value  = meta.title  || row.querySelector('.me-title').value;
       row.querySelector('.me-artist').value = meta.artist || row.querySelector('.me-artist').value;
       row.querySelector('.me-cover').value  = meta.cover  || '';
-      // show preview
       if(meta.cover){
         const thumb = row.querySelector('.cover-thumb');
-        if(thumb.tagName==='IMG') thumb.src=meta.cover;
-        else { const img=document.createElement('img'); img.src=meta.cover; img.style.cssText='width:38px;height:38px;border-radius:3px;object-fit:cover;flex-shrink:0;'; thumb.replaceWith(img); }
+        if(thumb&&thumb.tagName==='IMG') thumb.src=meta.cover;
+        else if(thumb){ const img=document.createElement('img'); img.src=meta.cover; img.style.cssText='width:38px;height:38px;border-radius:3px;object-fit:cover;flex-shrink:0;'; thumb.replaceWith(img); }
       }
       preview.style.display='flex';
       preview.innerHTML=`${meta.cover?`<img src="${escAttr(meta.cover)}" alt="">`:''}
         <div class="fp-info"><div class="fp-title">${escHtml(meta.title)}</div><div class="fp-artist">${escHtml(meta.artist)}</div></div>`;
-      showToast('Metadata fetched ✓');
+      showToast('Fetched ✓');
     });
-    audioInput.addEventListener('keydown',e=>{ if(e.key==='Enter') fetchBtn.click(); });
+    scInput.addEventListener('keydown',e=>{ if(e.key==='Enter') fetchBtn.click(); });
 
     // live cover preview
     row.querySelector('.me-cover').addEventListener('input',e=>{
@@ -1287,6 +1286,7 @@ function renderCPMusic(type){
       arr[i].artist   = row.querySelector('.me-artist').value;
       arr[i].feat     = row.querySelector('.me-feat').value;
       arr[i].desc     = row.querySelector('.me-desc').value;
+      arr[i].scUrl    = row.querySelector('.me-sc').value.trim();
       arr[i].audioUrl = row.querySelector('.me-audio').value.trim();
       arr[i].coverUrl = row.querySelector('.me-cover').value.trim();
       arr[i].emoji    = row.querySelector('.me-emoji').value;
