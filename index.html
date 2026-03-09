@@ -834,27 +834,32 @@ try{
 }
 
 async function saveData(d){
+  d._savedAt = Date.now(); // timestamp every save
   saveLocalCache(d);
   if(!_DOC) return;
   try{ await _DOC.set(d); }
   catch(e){ console.warn('Firebase save failed:', e); }
 }
 
-// Load from Firebase in background — page already rendered from cache
+// Load from Firebase in background — only update if Firebase data is NEWER
 if(_DOC){
   _DOC.get().then(snap=>{
     if(snap && snap.exists){
       const remote = snap.data();
-      // Only update if remote data is different
-      if(JSON.stringify(remote) !== JSON.stringify(D)){
+      const localTs  = D._savedAt || 0;
+      const remoteTs = remote._savedAt || 0;
+      // Only replace local data if Firebase version is strictly newer
+      if(remoteTs > localTs){
         D = remote;
         saveLocalCache(D);
         renderAll();
         populateCP();
         setTimeout(observeReveal, 100);
+      } else if(localTs > remoteTs){
+        // Local is newer — push to Firebase
+        _DOC.set(D).catch(()=>{});
       }
     } else if(snap && !snap.exists){
-      // First time — push local data to Firebase
       _DOC.set(D).catch(()=>{});
     }
   }).catch(e=>{ console.warn('Firebase load failed, using cache:', e); });
