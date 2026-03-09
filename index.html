@@ -22,6 +22,7 @@
 html{scroll-behavior:smooth;}
 body{background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;min-height:100vh;overflow-x:hidden;padding-bottom:calc(var(--player-h) + 8px);}
 body::after{content:'';position:fixed;inset:0;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");opacity:.025;pointer-events:none;z-index:8000;}
+#grid-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;}
 a{color:inherit;text-decoration:none;}
 button{border:none;background:none;color:inherit;font-family:inherit;cursor:pointer;}
 input,textarea,select{font-family:inherit;}
@@ -355,6 +356,7 @@ footer{padding:1.8rem 2.5rem;border-top:1px solid var(--border);display:flex;jus
 <body>
 
 <!-- PASSWORD MODAL -->
+<canvas id="grid-canvas"></canvas>
 <div class="pw-overlay" id="pwOverlay">
   <div class="pw-modal" id="pwModal">
     <div class="pw-lock">🔒</div>
@@ -1699,7 +1701,9 @@ document.getElementById('progTrack').addEventListener('click', function(e){
   document.getElementById('progFill').style.width=progPct+'%';
 });
 document.getElementById('volSlider').addEventListener('input',e=>{
-  if(gainNode) gainNode.gain.value=(e.target.value/100)*0.09;
+  const v = e.target.value/100;
+  if(gainNode) gainNode.gain.value = v * 0.09;
+  if(musicAudio) musicAudio.volume = v;
 });
 
 /* ═══════════════════════════════════════════════════
@@ -1752,5 +1756,123 @@ function escAttr(s){ return (s||'').replace(/"/g,'&quot;'); }
 renderAll();
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 </script>
+/* ═══════════════════════════════════════════════════
+   INTERACTIVE RIPPLE GRID
+═══════════════════════════════════════════════════ */
+(function(){
+  const canvas = document.getElementById('grid-canvas');
+  const ctx = canvas.getContext('2d');
+  const SPACING = 38;
+  let W, H, cols, rows, points;
+  let mouse = {x:-9999, y:-9999};
+  let accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#FF2200';
+
+  function hex2rgb(hex){
+    hex = hex.replace('#','');
+    if(hex.length===3) hex=hex.split('').map(c=>c+c).join('');
+    const n=parseInt(hex,16);
+    return [(n>>16)&255,(n>>8)&255,n&255];
+  }
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+    cols = Math.ceil(W/SPACING)+2;
+    rows = Math.ceil(H/SPACING)+2;
+    points = [];
+    for(let r=0;r<rows;r++){
+      for(let c=0;c<cols;c++){
+        points.push({
+          x: c*SPACING, y: r*SPACING,
+          ox: c*SPACING, oy: r*SPACING,
+          vx:0, vy:0
+        });
+      }
+    }
+  }
+
+  function draw(){
+    accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+    const [ar,ag,ab] = hex2rgb(accentColor);
+    ctx.clearRect(0,0,W,H);
+
+    // update points
+    for(const p of points){
+      const dx = mouse.x - p.ox;
+      const dy = mouse.y - p.oy;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      const RADIUS = 120, STRENGTH = 10;
+      if(dist<RADIUS){
+        const force = (1-dist/RADIUS)*STRENGTH;
+        const ang = Math.atan2(dy,dx);
+        p.vx -= Math.cos(ang)*force*0.4;
+        p.vy -= Math.sin(ang)*force*0.4;
+      }
+      // spring back
+      p.vx += (p.ox - p.x)*0.12;
+      p.vy += (p.oy - p.y)*0.12;
+      // damping
+      p.vx *= 0.72;
+      p.vy *= 0.72;
+      p.x += p.vx;
+      p.y += p.vy;
+    }
+
+    // draw horizontal lines
+    for(let r=0;r<rows;r++){
+      ctx.beginPath();
+      for(let c=0;c<cols;c++){
+        const p = points[r*cols+c];
+        const dx=p.x-p.ox, dy=p.y-p.oy;
+        const disp=Math.sqrt(dx*dx+dy*dy);
+        const alpha=0.06+Math.min(disp/8,1)*0.55;
+        ctx.strokeStyle=`rgba(${ar},${ag},${ab},${alpha})`;
+        ctx.lineWidth=0.7+Math.min(disp/12,1)*1.2;
+        if(c===0) ctx.moveTo(p.x,p.y);
+        else ctx.lineTo(p.x,p.y);
+      }
+      ctx.stroke();
+    }
+
+    // draw vertical lines
+    for(let c=0;c<cols;c++){
+      ctx.beginPath();
+      for(let r=0;r<rows;r++){
+        const p = points[r*cols+c];
+        const dx=p.x-p.ox, dy=p.y-p.oy;
+        const disp=Math.sqrt(dx*dx+dy*dy);
+        const alpha=0.06+Math.min(disp/8,1)*0.55;
+        ctx.strokeStyle=`rgba(${ar},${ag},${ab},${alpha})`;
+        ctx.lineWidth=0.7+Math.min(disp/12,1)*1.2;
+        if(r===0) ctx.moveTo(p.x,p.y);
+        else ctx.lineTo(p.x,p.y);
+      }
+      ctx.stroke();
+    }
+
+    // draw intersection dots at displaced points
+    for(const p of points){
+      const dx=p.x-p.ox, dy=p.y-p.oy;
+      const disp=Math.sqrt(dx*dx+dy*dy);
+      if(disp>0.5){
+        const alpha=Math.min(disp/10,1)*0.7;
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,Math.min(disp/8,2),0,Math.PI*2);
+        ctx.fillStyle=`rgba(${ar},${ag},${ab},${alpha})`;
+        ctx.fill();
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('mousemove',e=>{ mouse.x=e.clientX; mouse.y=e.clientY; });
+  window.addEventListener('touchmove',e=>{ if(e.touches[0]){ mouse.x=e.touches[0].clientX; mouse.y=e.touches[0].clientY; }},{passive:true});
+  window.addEventListener('mouseleave',()=>{ mouse.x=-9999; mouse.y=-9999; });
+  window.addEventListener('resize', resize);
+  resize();
+  draw();
+})();
+
 </body>
 </html>
