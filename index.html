@@ -805,12 +805,8 @@ const firebaseConfig = {
   messagingSenderId: "865299589933",
   appId: "1:865299589933:web:1012184a3effc4425781a4"
 };
-const _fbApp = firebase.initializeApp(firebaseConfig);
-const _db    = firebase.firestore();
-const _DOC   = _db.collection('portfolio').doc('data');
-
 /* ═══════════════════════════════════════════════════
-   STATE — load from Firestore (fallback: localStorage -> defaults)
+   STATE — localStorage cache (always works offline)
 ═══════════════════════════════════════════════════ */
 function loadLocalCache(){
   try{
@@ -822,33 +818,47 @@ function loadLocalCache(){
 function saveLocalCache(d){
   try{ localStorage.setItem('prodbyhk_data_v2', JSON.stringify(d)); }catch(e){}
 }
-async function saveData(d){
-  saveLocalCache(d);
-  try{
-    await _DOC.set(d);
-  }catch(e){
-    console.warn('Firebase save failed, data in localStorage only:', e);
-  }
-}
 
 let D = loadLocalCache();
+let _DOC = null;
 
-(async()=>{
-  try{
-    const snap = await _DOC.get();
-    if(snap.exists){
-      D = snap.data();
-      saveLocalCache(D);
-      renderAll();
-      populateCP();
-      setTimeout(observeReveal, 100);
-    } else {
-      await _DOC.set(D);
+// Init Firebase safely — site works even if Firebase fails
+try{
+  const _fbApp = firebase.initializeApp(firebaseConfig);
+  const _db    = firebase.firestore();
+  _DOC = _db.collection('portfolio').doc('data');
+  // Enable offline persistence so it works without internet
+  _db.enablePersistence({synchronizeTabs:true}).catch(()=>{});
+}catch(e){
+  console.warn('Firebase init failed, running in offline mode:', e);
+}
+
+async function saveData(d){
+  saveLocalCache(d);
+  if(!_DOC) return;
+  try{ await _DOC.set(d); }
+  catch(e){ console.warn('Firebase save failed:', e); }
+}
+
+// Load from Firebase in background — page already rendered from cache
+if(_DOC){
+  _DOC.get().then(snap=>{
+    if(snap && snap.exists){
+      const remote = snap.data();
+      // Only update if remote data is different
+      if(JSON.stringify(remote) !== JSON.stringify(D)){
+        D = remote;
+        saveLocalCache(D);
+        renderAll();
+        populateCP();
+        setTimeout(observeReveal, 100);
+      }
+    } else if(snap && !snap.exists){
+      // First time — push local data to Firebase
+      _DOC.set(D).catch(()=>{});
     }
-  }catch(e){
-    console.warn('Firebase load failed, using cache:', e);
-  }
-})();
+  }).catch(e=>{ console.warn('Firebase load failed, using cache:', e); });
+}
 
 /* ═══════════════════════════════════════════════════
    RENDER PORTFOLIO
